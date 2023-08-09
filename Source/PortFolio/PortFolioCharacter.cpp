@@ -50,7 +50,8 @@ APortFolioCharacter::APortFolioCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprintr asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-
+	//仮で名前設定
+	playerStatus.CharacterName="Player01";
 
 	UE_LOG(LogTemp, Log, TEXT("LevelUp:%d,HP::%f,Attack::%d"), playerStatus.playerLevel, playerStatus.playerMaxHealth, playerStatus.attackValue);
 
@@ -62,7 +63,8 @@ void APortFolioCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	GetLevelStatus();
-	playerStatus.CharacterName="Player01";
+	
+
 
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -220,6 +222,7 @@ void APortFolioCharacter::LevelDown()
 			auto _Name = StatusDataTable->GetRowNames();
 
 			auto _Record = StatusDataTable->FindRow<FCharacterLevelStatus>(_Name[dataNum], FString());
+
 
 			playerStatus.playerLevel = _Record->Level;
 			playerStatus.playerMaxHealth = _Record->HP;

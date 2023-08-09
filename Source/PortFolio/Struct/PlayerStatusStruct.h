@@ -27,6 +27,7 @@ struct FCharacterLevelStatus : public FTableRowBase
 	UPROPERTY(EditAnywhere)
 		double EXP;
 
+	
 };
 
 
@@ -61,4 +62,5 @@ FORCEINLINE FPlayerStatusStruct::FPlayerStatusStruct()
 	playerLevel = 1;
 	playerMaxHealth = 100;
 	attackValue = 10;
+	playerMaxEXP=110;
 }
