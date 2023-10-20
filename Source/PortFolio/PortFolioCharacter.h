@@ -78,6 +78,14 @@ public:
 	UFUNCTION(BlueprintCallable, DisplayName = "LevelDown", Category = "PlayerStatus")
 		void LevelDown();
 
+
+	UFUNCTION(BlueprintCallable, DisplayName = "LevelUp", Category = "PlayerStatus")
+	void Load();
+
+	UFUNCTION(BlueprintCallable, DisplayName = "LevelDown", Category = "PlayerStatus")
+	void Save();
+
+	
 		void GetLevelStatus();
 
 private:
@@ -102,6 +110,7 @@ public:
 		int32 maxLevel = 10;
 
 	int32 dataNum = 0;
+
 
 };
 

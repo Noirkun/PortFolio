@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SaveGame/SaveSubsystem.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,18 @@ APortFolioCharacter::APortFolioCharacter()
 	//仮で名前設定
 	playerStatus.CharacterName="Player01";
 
+	//ロードじゃなくここで値入れてる
+UGameInstance* GameIns=GetWorld()->GetGameInstance();
+	auto SaveSubSystem=GameIns->GetSubsystem<USaveSubsystem>();
+	playerStatus=SaveSubSystem->GameParameter.playerStatus;
+	EXP=SaveSubSystem->GameParameter.playerEXP;
+	dataNum=SaveSubSystem->GameParameter.levelData;
+	
+	this->SetActorTransform(SaveSubSystem->GameParameter.playerTransform);
+	UE_LOG(LogTemp, Log, TEXT("Transform:%s"), *GetTransform().ToString());
 	UE_LOG(LogTemp, Log, TEXT("LevelUp:%d,HP::%f,Attack::%d"), playerStatus.playerLevel, playerStatus.playerMaxHealth, playerStatus.attackValue);
+
+	
 
 }
 
@@ -62,7 +74,8 @@ void APortFolioCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
-	GetLevelStatus();
+
+
 	
 
 
@@ -245,8 +258,19 @@ void APortFolioCharacter::LevelDown()
 	}
 
 }
+
+void APortFolioCharacter::Load()
+{
+
+}
+
+void APortFolioCharacter::Save()
+{
+}
+
 void APortFolioCharacter::GetLevelStatus()
 {
+		
 	auto _Name = StatusDataTable->GetRowNames();
 
 	auto _Record = StatusDataTable->FindRow<FCharacterLevelStatus>(_Name[dataNum], FString());
