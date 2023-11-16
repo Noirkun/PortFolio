@@ -9,22 +9,22 @@
 #include "PlayerStatusStruct.generated.h"
 
 
-// データテーブル用構造体
+// データテーブル用のプレイヤーの変数をまとめた構造体
 USTRUCT()
 struct FCharacterLevelStatus : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
-		UPROPERTY(EditAnywhere)
+		UPROPERTY(EditAnywhere, meta = (ToolTip = "プレイヤーのレベル"))
 		int Level;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (ToolTip = "プレイヤーのHP"))
 		double HP;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (ToolTip = "プレイヤーの攻撃力"))
 		int Attack;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (ToolTip = "プレイヤーが持ってる経験値"))
 		double EXP;
 
 	
@@ -39,19 +39,19 @@ struct FPlayerStatusStruct {
 
 		FORCEINLINE FPlayerStatusStruct();
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, meta = (ToolTip = "プレイヤーの名前"))
 		FString CharacterName;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status", meta = (ToolTip = "プレイヤーのレベル"))
 		int32 playerLevel;
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (ToolTip = "プレイヤーのHP"))
 	double playerMaxHealth;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status", meta = (ToolTip = "プレイヤーの攻撃力"))
 	int32 attackValue;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (ToolTip = "プレイヤーが持てる経験値"))
 		double playerMaxEXP;
 
 

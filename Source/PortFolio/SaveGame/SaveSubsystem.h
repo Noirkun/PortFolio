@@ -19,10 +19,13 @@ class PORTFOLIO_API USaveSubsystem : public UGameInstanceSubsystem
 
 	static USaveSubsystem* Get();
 public:
-	FSaveParmeterStruct GameParameter;
-	USaveSystem* GetSaveSystem(const FString& SlotName, const int32& SlotIndex);
-	UFUNCTION(BlueprintCallable, DisplayName = "Save", Category = "GameSave")
-	void Save(const FString& SlotName, const int32& SlotIndex);
-	UFUNCTION(BlueprintCallable, DisplayName = "Load", Category = "GameSave")
-	void Load(const FString& SlotName, const int32& SlotIndex);
+	
+	 FSaveParmeterStruct GameParameter;
+
+	UFUNCTION(BlueprintCallable, Category = "Save/Load")
+	void SaveGame(bool& clearSave);
+
+	UFUNCTION(BlueprintCallable, Category = "Save/Load")
+	void LoadGame(bool& clearLoad);
+	
 };

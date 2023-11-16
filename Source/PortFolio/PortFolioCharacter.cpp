@@ -54,29 +54,12 @@ APortFolioCharacter::APortFolioCharacter()
 	//仮で名前設定
 	playerStatus.CharacterName="Player01";
 
-	//ロードじゃなくここで値入れてる
-UGameInstance* GameIns=GetWorld()->GetGameInstance();
-	auto SaveSubSystem=GameIns->GetSubsystem<USaveSubsystem>();
-	playerStatus=SaveSubSystem->GameParameter.playerStatus;
-	EXP=SaveSubSystem->GameParameter.playerEXP;
-	dataNum=SaveSubSystem->GameParameter.levelData;
-	
-	this->SetActorTransform(SaveSubSystem->GameParameter.playerTransform);
-	UE_LOG(LogTemp, Log, TEXT("Transform:%s"), *GetTransform().ToString());
-	UE_LOG(LogTemp, Log, TEXT("LevelUp:%d,HP::%f,Attack::%d"), playerStatus.playerLevel, playerStatus.playerMaxHealth, playerStatus.attackValue);
-
-	
-
 }
 
 void APortFolioCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-
-
-
-	
 
 
 	//Add Input Mapping Context
@@ -225,7 +208,7 @@ void APortFolioCharacter::LevelUp()
  */
 void APortFolioCharacter::LevelDown()
 {
-
+	//データテーブルがあるかどうか
 	if (StatusDataTable != nullptr)
 	{
 		if(dataNum > 0)
@@ -259,14 +242,21 @@ void APortFolioCharacter::LevelDown()
 
 }
 
+void APortFolioCharacter::Save()
+{
+
+		UE_LOG(LogTemp, Warning, TEXT("セーブ"));
+
+}
+
 void APortFolioCharacter::Load()
 {
 
+		UE_LOG(LogTemp, Warning, TEXT("ロード"));
+
 }
 
-void APortFolioCharacter::Save()
-{
-}
+
 
 void APortFolioCharacter::GetLevelStatus()
 {

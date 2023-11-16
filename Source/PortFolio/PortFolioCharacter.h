@@ -64,13 +64,13 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 
-
+	//手動で経験値を入力できる関数
 	UFUNCTION(BlueprintCallable, Category = "PlayerStatus",meta=(ToolTip="EXPをセットする。MaxEXPまで溜まったらLevelUPを行う。"))
 		void SetEXP(double InEXP);
 
 
 	/**
-	 * @brief �f�o�b�O�p�E�Ăяo���p
+	 * @brief レベルアップ用のテスト
 	 */
 	UFUNCTION(BlueprintCallable, DisplayName = "LevelUp", Category = "PlayerStatus")
 		void LevelUp();
@@ -78,15 +78,15 @@ public:
 	UFUNCTION(BlueprintCallable, DisplayName = "LevelDown", Category = "PlayerStatus")
 		void LevelDown();
 
-
-	UFUNCTION(BlueprintCallable, DisplayName = "LevelUp", Category = "PlayerStatus")
+	//セーブ・ロードの関数
+	UFUNCTION(BlueprintCallable, DisplayName = "Save", Category = "PlayerStatus")
+	void Save();
+	
+	UFUNCTION(BlueprintCallable, DisplayName = "Load", Category = "PlayerStatus")
 	void Load();
 
-	UFUNCTION(BlueprintCallable, DisplayName = "LevelDown", Category = "PlayerStatus")
-	void Save();
-
 	
-		void GetLevelStatus();
+	void GetLevelStatus();
 
 private:
 

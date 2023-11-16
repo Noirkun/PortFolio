@@ -31,7 +31,7 @@ struct FSaveParmeterStruct
 	 */
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "SaveParameter")
-	TSoftObjectPtr<UWorld> level;
+	FString level;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveParameter")
 	FPlayerStatusStruct playerStatus;
