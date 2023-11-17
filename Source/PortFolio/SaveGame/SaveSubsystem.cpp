@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PortFolio/PortFolioCharacter.h"
 
+
 USaveSubsystem* USaveSubsystem::Get()
 {
 	if(instance==nullptr)
@@ -45,7 +46,6 @@ void USaveSubsystem::LoadGame(bool& clearLoad)
 		clearLoad = false;
 		return;
 	}
-
 	
 	// USaveSystemクラスを取得
 	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, SAVE_SLOT_NUM));
@@ -58,13 +58,18 @@ void USaveSubsystem::LoadGame(bool& clearLoad)
 		APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
 
 		//タスクを使って順番に行う
-		FTask TaskOpenLevel = Launch(TEXT("OpenLevel"), [this,LevelName]
+		FTask TaskOpenLevel = Launch(TEXT("Task OpenLevel"), [this,LevelName]
 		                             {
 			                             // レベルをロードして格納（同期処理なので非同期も検討）
 			                             if (GetWorld() -> GetOuter() -> GetPathName() != LevelName)
 			                             {
+
+			                             	UGameInstance* _GameInst = GetWorld()->GetGameInstance();
+auto LevelManager = _GameInst->GetSubsystem<ULevelSubsystemManager>();
+			                             	LevelManager->LoadLevel(*LevelName);
+			                             	
 				                             // マップを推移する処理(LevelManagerなどを作るのが良いかもしれない)
-			                             	  UGameplayStatics::OpenLevel(this, *LevelName);
+			                             	  //UGameplayStatics::OpenLevel(this, *LevelName);
 			                             }
 			                             //FPlatformProcess::Sleep(1.0f);
 			                             UE_LOG(LogTemp, Log, TEXT("TaskOpenLevel End"));
@@ -72,7 +77,7 @@ void USaveSubsystem::LoadGame(bool& clearLoad)
 		);
 		
 		// TaskOpenLevelが完了するまでは起動しない
-		FTask TaskPlayerState = Launch(TEXT("Task Prereqs TaskB"), [this,MyCharacter,SaveGameInstance]
+		FTask TaskPlayerState = Launch(TEXT("Task TaskPlayerState"), [this,MyCharacter,SaveGameInstance]
 		                     {
 			                     // プレイヤーに値を割り振る
 			                     MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
@@ -95,19 +100,19 @@ TaskPlayerState.Wait();
 
 }
 
-void USaveSubsystem::ResetSaveSlot()
+void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
 {
-	USaveSystem* SaveGameInstance=Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
-
 	//ゲームスロットが作られているか確認
 	if(UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
 	{
 		//作られていた場合削除する。
 		UGameplayStatics::DeleteGameInSlot(SAVE_SLOT_NAME,SAVE_SLOT_NUM);
 		UE_LOG(LogTemp, Log, TEXT("ResetSaveSlot"));
+		ReturnResetSlot=true;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
+		ReturnResetSlot=false;
 	}
 }

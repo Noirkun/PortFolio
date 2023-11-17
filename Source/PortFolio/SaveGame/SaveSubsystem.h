@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SaveSystem.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "../LevelManager/LevelSubsystemManager.h"
 #include "Tasks/Task.h"
 #include "SaveSubsystem.generated.h"
 
@@ -20,21 +21,33 @@ class PORTFOLIO_API USaveSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
+public:
+
+
+	//inline static ULevelSubsystemManager LevelManager;
+	
 	inline static USaveSubsystem* instance;
 	
 	static USaveSubsystem* Get();
 	
-public:
-	
 	 FSaveParmeterStruct GameParameter;
-
-	UFUNCTION(BlueprintCallable, Category = "Save/Load",meta = (ToolTip = "ゲームをセーブする用の関数"))
+	
+	/* ゲームをセーブする用の関数
+	 @param clearSave セーブができたかどうか
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Save/Load")
 	void SaveGame(bool& clearSave);
 
-	UFUNCTION(BlueprintCallable, Category = "Save/Load",meta = (ToolTip = "ゲームをロードする用の関数(Slotになにもないと動作されない)"))
+	/* ゲームをロードする用の関数(Slotになにもないと動作されない)
+	 @param clearLoad ロードができたかどうか
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Save/Load")
 	void LoadGame(bool& clearLoad);
 	
-	UFUNCTION(BlueprintCallable,Category="Save/Load",meta = (ToolTip = "セーブしたスロットを削除する用の関数"))
-	void ResetSaveSlot();
+	 /* セーブしたスロットを削除する用の関数
+	  @param ReturnResetSlot スロットを削除できたかどうか
+	 */
+	UFUNCTION(BlueprintCallable,Category="Save/Load")
+	void ResetSaveSlot(bool& ReturnResetSlot);
 	
 };
