@@ -19,16 +19,15 @@ void UPlayerStatusDataAsset::Import()
     {
 	    auto record = DataTable->FindRow<FCharacterLevelStatus>(Names[i], FString());
 
-        FPlayerStatusStruct asset;
+        FPlayerStatusStruct asset(record->Level,record->HP, record->Attack,record->EXP);
 
-
-
+        /*
         asset.playerLevel = record->Level;
         asset.playerMaxHealth = record->HP;
         asset.attackValue = record->Attack;
         asset.playerMaxEXP = record->EXP;
-
-
+*/
+        
         Data.Add(asset);
     }
 

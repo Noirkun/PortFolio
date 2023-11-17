@@ -26,18 +26,16 @@ struct FCharacterLevelStatus : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, meta = (ToolTip = "プレイヤーが持ってる経験値"))
 		double EXP;
-
 	
 };
-
-
 
 USTRUCT(BlueprintType)
 struct FPlayerStatusStruct {
 	
 	GENERATED_BODY()
 
-		FORCEINLINE FPlayerStatusStruct();
+		FORCEINLINE FPlayerStatusStruct(int32 _playerLevel=1,
+			double _playerMaxHealth=100,int32 _attackValue=10,double _playerMaxEXP=110);
 
 	UPROPERTY(BlueprintReadOnly, meta = (ToolTip = "プレイヤーの名前"))
 		FString CharacterName;
@@ -53,14 +51,14 @@ struct FPlayerStatusStruct {
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status", meta = (ToolTip = "プレイヤーが持てる経験値"))
 		double playerMaxEXP;
-
-
+	
 };
 
-FORCEINLINE FPlayerStatusStruct::FPlayerStatusStruct()
+FORCEINLINE FPlayerStatusStruct::FPlayerStatusStruct(int32 _playerLevel,
+			double _playerMaxHealth,int32 _attackValue,double _playerMaxEXP)
 {
-	playerLevel = 1;
-	playerMaxHealth = 100;
-	attackValue = 10;
-	playerMaxEXP=110;
+	playerLevel = _playerLevel;
+	playerMaxHealth = _playerMaxHealth;
+	attackValue = _attackValue;
+	playerMaxEXP=_playerMaxEXP;
 }
