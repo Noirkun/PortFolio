@@ -54,6 +54,8 @@ APortFolioCharacter::APortFolioCharacter()
 	//仮で名前設定
 	playerStatus.CharacterName="Player01";
 
+	
+	
 }
 
 void APortFolioCharacter::BeginPlay()
@@ -70,6 +72,35 @@ void APortFolioCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	//最初にステータスを割り当てる
+	//セーブデータがある場合は行わないようにしたほうがいいかもしれない（プレイヤー生成時に毎回リセットされてしまうから）
+	//データテーブルがあるかどうか
+	if (StatusDataTable != nullptr)
+	{
+
+		dataNum = 0;
+
+		auto _Name = StatusDataTable->GetRowNames();
+
+		auto _Record = StatusDataTable->FindRow<FCharacterLevelStatus>(_Name[dataNum], FString());
+
+
+		playerStatus.playerLevel = _Record->Level;
+		playerStatus.playerMaxHealth = _Record->HP;
+		playerStatus.attackValue = _Record->Attack;
+		playerStatus.playerMaxEXP = _Record->EXP;
+
+		UE_LOG(LogTemp, Log, TEXT("LevelUp:%d,HP::%f,Attack::%d,EXP::%f"), playerStatus.playerLevel, playerStatus.playerMaxHealth, playerStatus.attackValue, playerStatus.playerMaxEXP);
+		return;
+		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not Set DataTable"));
+		return;
+	}
+	
 }
 
 
@@ -242,19 +273,6 @@ void APortFolioCharacter::LevelDown()
 
 }
 
-void APortFolioCharacter::Save()
-{
-
-		UE_LOG(LogTemp, Warning, TEXT("セーブ"));
-
-}
-
-void APortFolioCharacter::Load()
-{
-
-		UE_LOG(LogTemp, Warning, TEXT("ロード"));
-
-}
 
 
 

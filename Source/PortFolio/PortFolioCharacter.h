@@ -78,14 +78,7 @@ public:
 	UFUNCTION(BlueprintCallable, DisplayName = "LevelDown", Category = "PlayerStatus")
 		void LevelDown();
 
-	//セーブ・ロードの関数
-	UFUNCTION(BlueprintCallable, DisplayName = "Save", Category = "PlayerStatus")
-	void Save();
-	
-	UFUNCTION(BlueprintCallable, DisplayName = "Load", Category = "PlayerStatus")
-	void Load();
 
-	
 	void GetLevelStatus();
 
 private:
