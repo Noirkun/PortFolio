@@ -7,14 +7,13 @@
 
 USaveSubsystem* USaveSubsystem::Get()
 {
-	 USaveSubsystem* instance = nullptr;
-
-	if (GEngine != nullptr)
+	if(instance==nullptr)
 	{
-		FWorldContext* context = GEngine->GetWorldContextFromGameViewport(GEngine->GameViewport);
-		instance = Cast<USaveSubsystem>(context->OwningGameInstance);
+		instance=NewObject<USaveSubsystem>();
+		check(instance)
+		instance->AddToRoot();
 	}
-	return instance;
+		return instance;
 }
 
 //セーブする際に呼ぶ関数
@@ -31,15 +30,25 @@ void USaveSubsystem::SaveGame(bool& clearSave)
 	 SaveGameInstance->SaveParameter	={GetWorld()->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
 		MyCharacter->dataNum,MyCharacter->GetTransform()};
 	GameParameter= SaveGameInstance->SaveParameter;
-	UE_LOG(LogTemp, Log, TEXT("セーブ"));
-	 clearSave = UGameplayStatics::SaveGameToSlot(SaveGameInstance, "SaveSlotName", 0);
+	UE_LOG(LogTemp, Log, TEXT("SaveGame"));
+	 clearSave = UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NAME, SAVE_SLOT_NUM);
 }
 
 //ロードする際に呼ぶ関数
 void USaveSubsystem::LoadGame(bool& clearLoad)
 {
+	clearLoad = false;
+	//ゲームスロットが作られているか確認
+	if(!UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
+		clearLoad = false;
+		return;
+	}
+
+	
 	// USaveSystemクラスを取得
-	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot("SaveSlotName", 0));
+	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, SAVE_SLOT_NUM));
 	const FString& LevelName = SaveGameInstance -> SaveParameter.level;
 	// スロットがあるか確認
 	if (SaveGameInstance)
@@ -54,29 +63,51 @@ void USaveSubsystem::LoadGame(bool& clearLoad)
 			                             // レベルをロードして格納（同期処理なので非同期も検討）
 			                             if (GetWorld() -> GetOuter() -> GetPathName() != LevelName)
 			                             {
-				                             // マップを推移する処理
-				                             UGameplayStatics::OpenLevel(this, *LevelName);
+				                             // マップを推移する処理(LevelManagerなどを作るのが良いかもしれない)
+			                             	  UGameplayStatics::OpenLevel(this, *LevelName);
 			                             }
 			                             //FPlatformProcess::Sleep(1.0f);
-			                             UE_LOG(LogTemp, Log, TEXT("TaskA End"));
+			                             UE_LOG(LogTemp, Log, TEXT("TaskOpenLevel End"));
 		                             }
 		);
 		
 		// TaskOpenLevelが完了するまでは起動しない
-		FTask TaskB = Launch(TEXT("Task Prereqs TaskB"), [this,MyCharacter,SaveGameInstance]
+		FTask TaskPlayerState = Launch(TEXT("Task Prereqs TaskB"), [this,MyCharacter,SaveGameInstance]
 		                     {
 			                     // プレイヤーに値を割り振る
 			                     MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
 			                     MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
 			                     MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
 			                     MyCharacter->SetActorTransform(SaveGameInstance->SaveParameter.playerTransform);
-			                     UE_LOG(LogTemp, Warning, TEXT("LoadClear"));
-			                     FPlatformProcess::Sleep(0.2f);
-			                     UE_LOG(LogTemp, Log, TEXT("TaskB End"));
+			
+			                     //FPlatformProcess::Sleep(0.2f);
+			                     UE_LOG(LogTemp, Log, TEXT("TaskPlayerState End"));
+								 UE_LOG(LogTemp, Warning, TEXT("LoadClear"));
 		                     }, TaskOpenLevel
 		);
-TaskB.Wait();
+TaskPlayerState.Wait();
 		clearLoad = true;
 	}
-	clearLoad = false;
+	else
+	{
+		clearLoad = false;
+	}
+
+}
+
+void USaveSubsystem::ResetSaveSlot()
+{
+	USaveSystem* SaveGameInstance=Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
+
+	//ゲームスロットが作られているか確認
+	if(UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
+	{
+		//作られていた場合削除する。
+		UGameplayStatics::DeleteGameInSlot(SAVE_SLOT_NAME,SAVE_SLOT_NUM);
+		UE_LOG(LogTemp, Log, TEXT("ResetSaveSlot"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
+	}
 }
