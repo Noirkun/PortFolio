@@ -10,21 +10,34 @@ UCLASS()
 class PORTFOLIO_API ULevelSubsystemManager : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
-
-	
 	UFUNCTION()
-	void Completed();      // <- これが完了時に呼び出される関数です。上にUFUNCTION()の設定が必ず要ります。
+	virtual void LevelLoadCompleted();
+
+	UFUNCTION()
+	virtual void UnLevelLoadCompleted();  
 
 public:
+
+	// レベルをロードする関数
 	void LoadLevel(const FName& level);
+	// レベルをアンロードする関数
 	void UnloadLevel(const FName& level);
+	// レベルを表示する関数
 	bool ShowLevel(const FName& level) const;
+	// レベルを非表示にする関数
 	bool HideLevel(const FName& level) const;
+	// レベルのロードが完了したかどうかを返す関数
 	bool IsCompleted() const;
+
+
 	
 private:
-	FLatentActionInfo LatentAction;
 	bool Complete;
+	FName LoadLevelName;
+	FLatentActionInfo LoadLatentAction;
+	FLatentActionInfo UnloadLatentAction;
+
 };

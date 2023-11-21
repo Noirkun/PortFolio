@@ -49,5 +49,13 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable,Category="Save/Load")
 	void ResetSaveSlot(bool& ReturnResetSlot);
+
+
+	/* プレイヤーのパラメータをアタッチする用の関数
+	 @param playerStatus プレイヤーのパラメータ
+	*/
+	void AttachPlayerStatus(UWorld* World);
+	
+	
 	
 };

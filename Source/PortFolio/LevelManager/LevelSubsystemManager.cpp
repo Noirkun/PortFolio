@@ -3,6 +3,7 @@
 
 #include "LevelSubsystemManager.h"
 #include "Async/Async.h"
+#include "Containers/Ticker.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -10,32 +11,47 @@ void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	LatentAction.CallbackTarget = this;
-	LatentAction.ExecutionFunction = "Completed";    // <- 完了時に呼び出される関数名を設定
-	LatentAction.UUID = 1;
-	LatentAction.Linkage = 0;
+	LoadLatentAction.CallbackTarget = this;
+	LoadLatentAction.ExecutionFunction = "LevelLoadCompleted";    // <- 完了時に呼び出される関数名を設定
+	LoadLatentAction.UUID = 1;
+	LoadLatentAction.Linkage = 0;
+
+	UnloadLatentAction.CallbackTarget = this;
+	UnloadLatentAction.ExecutionFunction = "LevelLoadCompleted";    // <- 完了時に呼び出される関数名を設定
+	UnloadLatentAction.UUID = 1;
+	UnloadLatentAction.Linkage = 0;
+	
 }
 
 
-
-
-void ULevelSubsystemManager::Completed()
+void ULevelSubsystemManager::LevelLoadCompleted()
 {
+	//完了したらLevelを移動する。
+	UGameplayStatics::OpenLevel( this, LoadLevelName );
 	Complete = true;
+}
 
+void ULevelSubsystemManager::UnLevelLoadCompleted()
+{
+	UGameplayStatics::LoadStreamLevel( this, LoadLevelName, false, false, LoadLatentAction );
 }
 
 void ULevelSubsystemManager::LoadLevel(const FName& level)
 {
+	
+	
 	Complete = false;
-	UGameplayStatics::LoadStreamLevel( this, level, false, false, LatentAction );
+	UGameplayStatics::UnloadStreamLevel( this, GetWorld()->GetFName(), LoadLatentAction, false );
+	
+	LoadLevelName=level;
+
 
 }
 
 void ULevelSubsystemManager::UnloadLevel(const FName& level)
 {
 	Complete = false;
-	UGameplayStatics::UnloadStreamLevel( this, level, LatentAction, false );
+	UGameplayStatics::UnloadStreamLevel( this, level, LoadLatentAction, false );
 
 }
 

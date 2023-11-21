@@ -4,7 +4,7 @@
 #include "SaveSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "PortFolio/PortFolioCharacter.h"
-
+#include "UObject/UObjectGlobals.h"
 
 USaveSubsystem* USaveSubsystem::Get()
 {
@@ -28,7 +28,7 @@ void USaveSubsystem::SaveGame(bool& clearSave)
 	APortFolioCharacter* MyCharacter=Cast<APortFolioCharacter,ACharacter>(Character);
 
 	//セーブする値のセット
-	 SaveGameInstance->SaveParameter	={GetWorld()->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
+	 SaveGameInstance->SaveParameter={GetWorld()->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
 		MyCharacter->dataNum,MyCharacter->GetTransform()};
 	GameParameter= SaveGameInstance->SaveParameter;
 	UE_LOG(LogTemp, Log, TEXT("SaveGame"));
@@ -53,44 +53,24 @@ void USaveSubsystem::LoadGame(bool& clearLoad)
 	// スロットがあるか確認
 	if (SaveGameInstance)
 	{
-		//プレイヤーの取得
-		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(this -> GetWorld(), 0);
-		APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
-
-		//タスクを使って順番に行う
-		FTask TaskOpenLevel = Launch(TEXT("Task OpenLevel"), [this,LevelName]
-		                             {
-			                             // レベルをロードして格納（同期処理なので非同期も検討）
-			                             if (GetWorld() -> GetOuter() -> GetPathName() != LevelName)
-			                             {
-
-			                             	UGameInstance* _GameInst = GetWorld()->GetGameInstance();
-auto LevelManager = _GameInst->GetSubsystem<ULevelSubsystemManager>();
-			                             	LevelManager->LoadLevel(*LevelName);
-			                             	
-				                             // マップを推移する処理(LevelManagerなどを作るのが良いかもしれない)
-			                             	  //UGameplayStatics::OpenLevel(this, *LevelName);
-			                             }
-			                             //FPlatformProcess::Sleep(1.0f);
-			                             UE_LOG(LogTemp, Log, TEXT("TaskOpenLevel End"));
-		                             }
-		);
 		
-		// TaskOpenLevelが完了するまでは起動しない
-		FTask TaskPlayerState = Launch(TEXT("Task TaskPlayerState"), [this,MyCharacter,SaveGameInstance]
-		                     {
-			                     // プレイヤーに値を割り振る
-			                     MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
-			                     MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
-			                     MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
-			                     MyCharacter->SetActorTransform(SaveGameInstance->SaveParameter.playerTransform);
-			
-			                     //FPlatformProcess::Sleep(0.2f);
-			                     UE_LOG(LogTemp, Log, TEXT("TaskPlayerState End"));
-								 UE_LOG(LogTemp, Warning, TEXT("LoadClear"));
-		                     }, TaskOpenLevel
-		);
-TaskPlayerState.Wait();
+			// レベルをロードして格納（同期処理なので非同期も検討）
+			if (GetWorld() -> GetOuter() -> GetPathName() != LevelName)
+			{
+				UGameInstance* _GameInst = GetWorld() -> GetGameInstance();
+
+				//LevelManagerから非同期ロード用の関数を呼ぶ
+				auto LevelManager = _GameInst -> GetSubsystem<ULevelSubsystemManager>();
+				LevelManager -> LoadLevel(*LevelName);
+
+				//LoadMapの最後にデータを入れるようにする。
+				FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &USaveSubsystem::AttachPlayerStatus);
+			}
+			else
+			{
+				AttachPlayerStatus(GetWorld());
+			}
+		
 		clearLoad = true;
 	}
 	else
@@ -115,4 +95,31 @@ void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
 		UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
 		ReturnResetSlot=false;
 	}
+}
+
+void USaveSubsystem::AttachPlayerStatus(UWorld* World=nullptr)
+{
+		
+	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, SAVE_SLOT_NUM));
+	const FString& LevelName = SaveGameInstance -> SaveParameter.level;
+	
+	if(GetWorld())
+	{
+		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(this -> GetWorld(), 0);
+		
+		if (Character)
+		{
+			//Characterが入ってない
+			UE_LOG(LogTemp, Log, TEXT("Character=%p"), Character);
+
+			APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
+
+			// プレイヤーに値を割り振る
+			MyCharacter -> playerStatus = SaveGameInstance -> SaveParameter . playerStatus;
+			MyCharacter -> EXP = SaveGameInstance -> SaveParameter . playerEXP;
+			MyCharacter -> dataNum = SaveGameInstance -> SaveParameter . levelData;
+			MyCharacter -> SetActorTransform(SaveGameInstance -> SaveParameter . playerTransform);
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("LoadClear"));
 }
