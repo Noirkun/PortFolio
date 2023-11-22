@@ -29,6 +29,8 @@ void ULevelSubsystemManager::LevelLoadCompleted()
 	//完了したらLevelを移動する。
 	UGameplayStatics::OpenLevel( this, LoadLevelName );
 	Complete = true;
+
+
 }
 
 void ULevelSubsystemManager::UnLevelLoadCompleted()
@@ -38,21 +40,10 @@ void ULevelSubsystemManager::UnLevelLoadCompleted()
 
 void ULevelSubsystemManager::LoadLevel(const FName& level)
 {
-	
-	
 	Complete = false;
 	UGameplayStatics::UnloadStreamLevel( this, GetWorld()->GetFName(), LoadLatentAction, false );
-	
 	LoadLevelName=level;
-
-
-}
-
-void ULevelSubsystemManager::UnloadLevel(const FName& level)
-{
-	Complete = false;
-	UGameplayStatics::UnloadStreamLevel( this, level, LoadLatentAction, false );
-
+	
 }
 
 bool ULevelSubsystemManager::ShowLevel(const FName& level) const

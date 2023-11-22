@@ -14,6 +14,8 @@ using namespace UE::Tasks;
 //セーブスロットは一つだけ使う予定なので定数でスロット名と番号を指定
 #define SAVE_SLOT_NAME "SaveSlotName"
 #define SAVE_SLOT_NUM 0
+#define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
+#define SAVE_SLOT_NOW_GAME_NUM 1
 
 
 UCLASS()
@@ -30,19 +32,20 @@ public:
 	
 	static USaveSubsystem* Get();
 	
-	 FSaveParmeterStruct GameParameter;
 	
 	/* ゲームをセーブする用の関数
 	 @param clearSave セーブができたかどうか
+	 @param IsEnd ゲームを終了するときに呼ぶかどうか
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Save/Load")
-	void SaveGame(bool& clearSave);
+	void SaveGame(bool& clearSave,bool IsEnd=false);
 
 	/* ゲームをロードする用の関数(Slotになにもないと動作されない)
 	 @param clearLoad ロードができたかどうか
+	 @param IsStart ゲームを開始するときに呼ぶかどうか
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Save/Load")
-	void LoadGame(bool& clearLoad);
+	void LoadGame(bool& clearLoad,bool IsStart=false);
 	
 	 /* セーブしたスロットを削除する用の関数
 	  @param ReturnResetSlot スロットを削除できたかどうか
@@ -54,7 +57,7 @@ public:
 	/* プレイヤーのパラメータをアタッチする用の関数
 	 @param playerStatus プレイヤーのパラメータ
 	*/
-	void AttachPlayerStatus(UWorld* World);
+	void AttachPlayerStatus(UWorld* World,const FString& SlotName ,const int32 SlotNum);
 	
 	
 	

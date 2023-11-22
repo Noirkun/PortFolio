@@ -18,66 +18,132 @@ USaveSubsystem* USaveSubsystem::Get()
 }
 
 //セーブする際に呼ぶ関数
-void USaveSubsystem::SaveGame(bool& clearSave)
+void USaveSubsystem::SaveGame(bool& clearSave,bool IsEnd)
 {
-	// USaveSystemクラスを取得
-	USaveSystem* SaveGameInstance=Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
-
+	
 	//プレイヤーを取得
 	ACharacter* Character=UGameplayStatics::GetPlayerCharacter(this->GetWorld(),0);
 	APortFolioCharacter* MyCharacter=Cast<APortFolioCharacter,ACharacter>(Character);
 
-	//セーブする値のセット
-	 SaveGameInstance->SaveParameter={GetWorld()->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
-		MyCharacter->dataNum,MyCharacter->GetTransform()};
-	GameParameter= SaveGameInstance->SaveParameter;
-	UE_LOG(LogTemp, Log, TEXT("SaveGame"));
-	 clearSave = UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NAME, SAVE_SLOT_NUM);
-}
-
-//ロードする際に呼ぶ関数
-void USaveSubsystem::LoadGame(bool& clearLoad)
-{
-	clearLoad = false;
-	//ゲームスロットが作られているか確認
-	if(!UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
+	if(IsEnd)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
-		clearLoad = false;
-		return;
-	}
-	
-	// USaveSystemクラスを取得
-	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, SAVE_SLOT_NUM));
-	const FString& LevelName = SaveGameInstance -> SaveParameter.level;
-	// スロットがあるか確認
-	if (SaveGameInstance)
-	{
-		
-			// レベルをロードして格納（同期処理なので非同期も検討）
-			if (GetWorld() -> GetOuter() -> GetPathName() != LevelName)
-			{
-				UGameInstance* _GameInst = GetWorld() -> GetGameInstance();
+		// USaveSystemクラスを取得
+		USaveSystem* SaveGameInstance=Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
+		//セーブする値のセット
+		SaveGameInstance->SaveParameter={GetWorld()->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
+		   MyCharacter->dataNum,MyCharacter->GetTransform()};
 
-				//LevelManagerから非同期ロード用の関数を呼ぶ
-				auto LevelManager = _GameInst -> GetSubsystem<ULevelSubsystemManager>();
-				LevelManager -> LoadLevel(*LevelName);
-
-				//LoadMapの最後にデータを入れるようにする。
-				FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &USaveSubsystem::AttachPlayerStatus);
-			}
-			else
-			{
-				AttachPlayerStatus(GetWorld());
-			}
-		
-		clearLoad = true;
+		UE_LOG(LogTemp, Log, TEXT("StartSaveGame"));
+		clearSave = UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NAME, SAVE_SLOT_NUM);
 	}
 	else
 	{
-		clearLoad = false;
-	}
+		// USaveSystemクラスを取得
+		USaveSystem* SaveGameInstance=Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
+		//セーブする値のセット
+		SaveGameInstance->SaveParameter={GetWorld()->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
+		   MyCharacter->dataNum,MyCharacter->GetTransform()};
 
+		UE_LOG(LogTemp, Log, TEXT("NowSaveGame"));
+		clearSave = UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
+	}
+}
+
+//ロードする際に呼ぶ関数
+void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart)
+{
+	clearLoad = false;
+	if(IsStart)
+	{
+		//セーブ用スロットが作られているか確認
+		if (!UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
+		{
+			//セーブ用ゲームスロットが作られていない場合
+			UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
+			clearLoad = false;
+			return;
+		}
+	}
+	else
+	{
+		//一時セーブ用ゲームスロットが作られているか確認
+		if (!UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NOW_GAME_NAME,SAVE_SLOT_NOW_GAME_NUM))
+		{
+			//一時セーブ用ゲームスロットが作られていない場合
+			UE_LOG(LogTemp, Log, TEXT("Not NowGameSaveSlot"));
+			clearLoad = false;
+			return;
+		}
+	}
+	
+	UGameInstance* _GameInst = GetWorld() -> GetGameInstance();
+
+	//LevelManagerから非同期ロード用の関数を呼ぶ
+	auto LevelManager = _GameInst -> GetSubsystem<ULevelSubsystemManager>();
+
+	//ゲーム開始時に呼ぶかどうか
+	if (IsStart)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Start"));
+		// セーブ用スロットを取得
+		 USaveSystem* SaveGameInstance = Cast<USaveSystem>(
+			UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, SAVE_SLOT_NUM));
+		if(SaveGameInstance)
+		{
+			const FString& LevelName = SaveGameInstance -> SaveParameter . level;
+		
+			LevelManager -> LoadLevel(*LevelName);
+
+			USaveSubsystem* SaveSubsystem = this;
+			//LoadMapの最後にデータを入れるようにする。
+			FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([SaveSubsystem](UWorld* World)
+			{
+				SaveSubsystem->AttachPlayerStatus(World, SAVE_SLOT_NAME, SAVE_SLOT_NUM);
+			});
+			clearLoad = true;
+
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Not StartSaveSlot Instance"));
+			clearLoad = false;
+
+		}
+	}
+	//ゲーム中に呼ぶ
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not Start"));
+		// 一時セーブ用スロットを取得
+		 USaveSystem* SaveGameInstance = Cast<USaveSystem>(
+			UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM));
+		
+		if(SaveGameInstance)
+		{
+			const FString& LevelName = SaveGameInstance -> SaveParameter . level;
+
+			// LevelNameが現在のレベルと同じでない場合のみロードする
+			if (GetWorld() -> GetOuter() -> GetPathName() != LevelName)
+			{
+				// スロットに保存されているレベル以外をロードするときの処理があれば書く
+			}
+				LevelManager -> LoadLevel(*LevelName);
+
+				USaveSubsystem* SaveSubsystem = this;
+				//LoadMapの最後にデータを入れるようにする。
+				FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([SaveSubsystem](UWorld* World)
+				{
+					SaveSubsystem->AttachPlayerStatus(World, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
+				});
+				clearLoad = true;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Not NowGameSaveSlot Instance"));
+			clearLoad = false;
+
+		}
+	}
 }
 
 void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
@@ -97,21 +163,19 @@ void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
 	}
 }
 
-void USaveSubsystem::AttachPlayerStatus(UWorld* World=nullptr)
+void USaveSubsystem::AttachPlayerStatus(UWorld* World,const FString& SlotName ,const int32 SlotNum)
 {
-		
-	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, SAVE_SLOT_NUM));
+	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SlotName, SlotNum));
 	const FString& LevelName = SaveGameInstance -> SaveParameter.level;
 	
-	if(GetWorld())
+	// PostLoadMapWithWorldのデリゲートを削除
+	FCoreUObjectDelegates::PostLoadMapWithWorld.Clear();
+	if(World)
 	{
-		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(this -> GetWorld(), 0);
+		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
 		
 		if (Character)
 		{
-			//Characterが入ってない
-			UE_LOG(LogTemp, Log, TEXT("Character=%p"), Character);
-
 			APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
 
 			// プレイヤーに値を割り振る
@@ -122,4 +186,5 @@ void USaveSubsystem::AttachPlayerStatus(UWorld* World=nullptr)
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("LoadClear"));
+
 }
