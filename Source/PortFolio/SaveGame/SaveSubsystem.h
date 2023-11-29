@@ -17,7 +17,9 @@ using namespace UE::Tasks;
 #define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
 #define SAVE_SLOT_NOW_GAME_NUM 1
 
-
+/**
+ * 　セーブとロードを管理するクラス
+ */
 UCLASS()
 class PORTFOLIO_API USaveSubsystem : public UGameInstanceSubsystem
 {

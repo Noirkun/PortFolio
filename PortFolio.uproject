@@ -10,7 +10,11 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"BlueprintGraph"
+				"BlueprintGraph",
+				"UMGEditor",
+				"UMG",
+				"Slate",
+				"SlateCore"
 			]
 		}
 	],
