@@ -6,6 +6,9 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "LevelSubsystemManager.generated.h"
 
+#define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
+#define SAVE_SLOT_NOW_GAME_NUM 1
+
 /**
  *  レベルのロードな管理するクラス
  */
@@ -25,7 +28,23 @@ class PORTFOLIO_API ULevelSubsystemManager : public UGameInstanceSubsystem
 	virtual void UnLevelLoadCompleted();  
 
 public:
+
 	
+	/* 非同期で移動するレベル（サブレベル指定が必要）
+	@param Level 移動するレベル
+	*/
+	UFUNCTION(BlueprintCallable, Category = "LevelManager")
+		void AsyncOpenLevel(const TSoftObjectPtr<UWorld> Level = nullptr);
+
+	/* プレイヤーのパラメータをアタッチする用の関数
+	@param World 
+	@param SlotName
+	@param SlotNum
+	*/
+	void AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum);
+
+
+
 	/* レベルをロードする関数
 	@param Level ロードするレベルの名前
 	*/

@@ -14,8 +14,6 @@ using namespace UE::Tasks;
 //セーブスロットは一つだけ使う予定なので定数でスロット名と番号を指定
 #define SAVE_SLOT_NAME "SaveSlotName"
 #define SAVE_SLOT_NUM 0
-#define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
-#define SAVE_SLOT_NOW_GAME_NUM 1
 
 /**
  * 　セーブとロードを管理するクラス
@@ -55,12 +53,5 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Save/Load")
 	void ResetSaveSlot(bool& ReturnResetSlot);
 
-
-	/* プレイヤーのパラメータをアタッチする用の関数
-	 @param playerStatus プレイヤーのパラメータ
-	*/
-	void AttachPlayerStatus(UWorld* World,const FString& SlotName ,const int32 SlotNum);
-	
-	
 	
 };
