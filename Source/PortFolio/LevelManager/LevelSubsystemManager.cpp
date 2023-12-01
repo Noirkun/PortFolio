@@ -3,17 +3,17 @@
 
 #include "LevelSubsystemManager.h"
 #include "Async/Async.h"
+#include "Blueprint/UserWidget.h"
 #include "Containers/Ticker.h"
-#include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
-#include <PortFolio/PortFolioCharacter.h>
-#include <PortFolio/SaveGame/SaveSystem.h>
-#include "PortFolio/Widget/Fade/Struct/FadeScreenStruct.h"
-#include <PortFolio/Widget/Fade/FadeScreenSubsystem.h>
+#include "PortFolio/PortFolioCharacter.h"
+#include "PortFolio/SaveGame/SaveSystem.h"
 
 void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 {
+	
 	Super::Initialize(Collection);
+	
 
 	LoadLatentAction.CallbackTarget = this;
 	LoadLatentAction.ExecutionFunction = "LevelLoadCompleted";
@@ -29,6 +29,7 @@ void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void ULevelSubsystemManager::LevelLoadCompleted()
 {
+	
 	//完了したらLevelを移動する。
 	UGameplayStatics::OpenLevel( this, LoadLevelName );
 	Complete = true;
@@ -40,18 +41,38 @@ void ULevelSubsystemManager::UnLevelLoadCompleted()
 	UGameplayStatics::LoadStreamLevel( this, LoadLevelName, false, false, LoadLatentAction );
 }
 
-void ULevelSubsystemManager::AsyncOpenLevel(const TSoftObjectPtr<UWorld> Level)
+//非同期でレベルをロードする関数(LevelFuncLibraryに移動済み)
+/*
+void ULevelSubsystemManager::AsyncOpenLevel(ELevelNamesType Level)
 {
-	const FName LevelFName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
-	if (Level == nullptr)
+	
+	UGameManager* GameManager = GetWorld()->GetGameInstance<UGameManager>();
+
+	FString LevelName = "Stage02";
+	//エラーが起きてる。
+	if(GameManager)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NotLevel Data"));
+		TArray<FName> LevelNames = GameManager->GetLevelNames();
+
+		UE_LOG(LogTemp, Warning, TEXT("LoadLevelName=%d"), LevelNames.Num());
+		
+		for(auto LevelNameSlot : LevelNames)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LoadLevelName=%s"), *LevelNameSlot.ToString());
+		
+		}
+		
+		LevelName = LevelNames[static_cast<int32>(Level)].ToString();
+		UE_LOG(LogTemp, Warning, TEXT("LevelName=%s"), *LevelName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NotGameManager"));
 		return;
 	}
+	
 
-	FString LevelName = LevelFName.ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("Async MoveLevel=%s"),*LevelName);
-
+	
 	//プレイヤーを取得
 	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(this->GetWorld(), 0);
 	APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
@@ -64,23 +85,15 @@ void ULevelSubsystemManager::AsyncOpenLevel(const TSoftObjectPtr<UWorld> Level)
 
 	UE_LOG(LogTemp, Log, TEXT("NowSaveGame"));
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
-
-
+	
 	if (SaveGameInstance)
 	{
-
-
 		// LevelNameが現在のレベルと同じでない場合のみロードする
 		if (GetWorld()->GetOuter()->GetPathName() != LevelName)
 		{
 			// スロットに保存されているレベル以外をロードするときの処理があれば書く
 		}
-
 		UGameInstance* _GameInst = GetWorld()->GetGameInstance();
-
-
-
-
 
 		auto FadeSubsystem = _GameInst->GetSubsystem<UFadeScreenSubsystem>();
 		FFadeScreenDelegate FadeDelegate;
@@ -105,6 +118,7 @@ void ULevelSubsystemManager::AsyncOpenLevel(const TSoftObjectPtr<UWorld> Level)
 	}
 
 }
+*/
 
 void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum)
 {

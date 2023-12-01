@@ -13,5 +13,15 @@ UCLASS()
 class PORTFOLIO_API UGameManager : public UGameInstance
 {
 	GENERATED_BODY()
+
+virtual void Init() override;
+
+
+
+public:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "LoadingScreen",meta = (AssetBundles = "Explicit"))
+	TSoftClassPtr<UUserWidget> LoadingScreenClass;
+
 	
 };

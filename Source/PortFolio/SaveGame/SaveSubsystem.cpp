@@ -18,6 +18,62 @@ USaveSubsystem* USaveSubsystem::Get()
 		return instance;
 }
 
+void USaveSubsystem::OnTimer()
+{
+	if(!IsStartTimer)
+	{
+		CountMin=0;
+		CountHour=0;
+		IsStartTimer=true;
+	}
+
+	++CountMin;
+	//MInEvent.Broadcast();
+	UE_LOG(LogTemp, Log, TEXT("Min Timer Tick: %d"), CountMin);
+    
+	if (CountMin >= Min)
+	{
+
+		CountMin = 0;
+		UE_LOG(LogTemp, Log, TEXT("Clearing the timer."));
+
+		++CountHour;
+		//HourEvent.Broadcast();
+		
+		UE_LOG(LogTemp, Log, TEXT("Hour Timer Tick: %d"), CountHour);
+       
+		if (CountHour >= Hour)
+		{
+			IsStartTimer=false;
+			CountHour = 0;
+			UE_LOG(LogTemp, Log, TEXT("Clearing the timer."));
+		}
+	}
+}
+
+void USaveSubsystem::TimerCall(int32 min=5, int32 hour=5)
+{
+	//値の代入
+	Min=min;
+	Hour=hour;
+
+	if(IsStartTimer==false)
+	{
+		//タイマーをセットする
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&USaveSubsystem::OnTimer,1.0f,true);
+		
+		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Timerが起動中！！"));
+	}
+}
+
+
+
+
 //セーブする際に呼ぶ関数
 void USaveSubsystem::SaveGame(bool& clearSave,bool IsEnd)
 {

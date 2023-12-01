@@ -15,6 +15,10 @@ using namespace UE::Tasks;
 #define SAVE_SLOT_NAME "SaveSlotName"
 #define SAVE_SLOT_NUM 0
 
+
+
+
+
 /**
  * 　セーブとロードを管理するクラス
  */
@@ -31,7 +35,23 @@ public:
 	inline static USaveSubsystem* instance;
 	
 	static USaveSubsystem* Get();
+
+
+	int32 Min;
+	int32 Hour;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Save/Load")
+	int32 CountMin;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Save/Load")
+	int32 CountHour;
 	
+	//タイマーを開始するかどうか
+	bool IsStartTimer=false;
+
+	void OnTimer();
+	
+	//SetTimerを呼び出す関数。OnTimerの変数入れてる。
+	UFUNCTION(BlueprintCallable, Category = "Save/Load")
+	void TimerCall(int32 min,int32 hour);
 	
 	/* ゲームをセーブする用の関数
 	 @param clearSave セーブができたかどうか

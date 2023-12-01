@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "PortFolio/GameManager/GameManager.h"
 #include "LevelSubsystemManager.generated.h"
 
 #define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
@@ -29,21 +30,21 @@ class PORTFOLIO_API ULevelSubsystemManager : public UGameInstanceSubsystem
 
 public:
 
-	
-	/* 非同期で移動するレベル（サブレベル指定が必要）
-	@param Level 移動するレベル
-	*/
-	UFUNCTION(BlueprintCallable, Category = "LevelManager")
-		void AsyncOpenLevel(const TSoftObjectPtr<UWorld> Level = nullptr);
 
+	//非同期でレベルをロードする関数(LevelFuncLibraryに移動済み)
+	/*
+	UFUNCTION(BlueprintCallable, Category = "LevelManager")
+		void AsyncOpenLevel(ELevelNamesType Level);
+	*/
+
+	
 	/* プレイヤーのパラメータをアタッチする用の関数
 	@param World 
 	@param SlotName
 	@param SlotNum
 	*/
 	void AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum);
-
-
+	
 
 	/* レベルをロードする関数
 	@param Level ロードするレベルの名前
@@ -53,9 +54,8 @@ public:
 	// レベルのロードが完了したかどうかを返す関数
 	bool IsCompleted() const;
 
-	
-	UUserWidget* LoadingWidget;
-	
+	UPROPERTY()
+	UUserWidget* LoadingScreenWidget=nullptr;
 private:
 	bool Complete;
 	FName LoadLevelName;

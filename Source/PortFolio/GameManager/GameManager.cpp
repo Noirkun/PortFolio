@@ -3,3 +3,11 @@
 
 #include "GameManager.h"
 
+#include "Kismet/GameplayStatics.h"
+
+void UGameManager::Init()
+{
+	Super::Init();
+	
+
+}
