@@ -4,9 +4,11 @@
 #include "LevelSubsystemManager.h"
 #include "Async/Async.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/PanelWidget.h"
 #include "Containers/Ticker.h"
 #include "Kismet/GameplayStatics.h"
 #include "PortFolio/PortFolioCharacter.h"
+#include "PortFolio/GameModes/FarmWorldSettings.h"
 #include "PortFolio/SaveGame/SaveSystem.h"
 
 void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -30,8 +32,17 @@ void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 void ULevelSubsystemManager::LevelLoadCompleted()
 {
 	
+	if (LoadingScreenWidget->GetParent() != nullptr && LoadingScreenWidget->GetParent()->IsA<UGameViewportClient>())
+	{
+		LoadingScreenWidget->RemoveFromParent();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LoadingScreenWidget is not in viewport"));
+	}
 	//完了したらLevelを移動する。
 	UGameplayStatics::OpenLevel( this, LoadLevelName );
+
 	Complete = true;
 	
 }
@@ -153,6 +164,22 @@ void ULevelSubsystemManager::LoadLevel(const FName& level)
 	Complete = false;
 	UGameplayStatics::UnloadStreamLevel( this, GetWorld()->GetFName(), LoadLatentAction, false );
 	LoadLevelName=level;
+
+	AWorldSettings *WorldSettings = GetWorld()->GetWorldSettings();
+	AFarmWorldSettings *FarmWorldSettings = Cast<AFarmWorldSettings>(WorldSettings);
+	if (FarmWorldSettings)
+	{
+		UUserWidget *Widget = FarmWorldSettings->GetLoadingWidget().GetDefaultObject();
+		if (Widget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Widget is %s"), *Widget->GetName())
+			LoadingScreenWidget = CreateWidget<UUserWidget>(GetWorld(), Widget->GetClass());
+			if (LoadingScreenWidget)
+			{
+				LoadingScreenWidget->AddToViewport();
+			}
+		}
+	}
 	
 }
 

@@ -36,23 +36,6 @@ public:
 	
 	static USaveSubsystem* Get();
 
-
-	int32 Min;
-	int32 Hour;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Save/Load")
-	int32 CountMin;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Save/Load")
-	int32 CountHour;
-	
-	//タイマーを開始するかどうか
-	bool IsStartTimer=false;
-
-	void OnTimer();
-	
-	//SetTimerを呼び出す関数。OnTimerの変数入れてる。
-	UFUNCTION(BlueprintCallable, Category = "Save/Load")
-	void TimerCall(int32 min,int32 hour);
-	
 	/* ゲームをセーブする用の関数
 	 @param clearSave セーブができたかどうか
 	 @param IsEnd ゲームを終了するときに呼ぶかどうか
