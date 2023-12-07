@@ -19,7 +19,12 @@ class PORTFOLIO_API AFarmWorldSettings : public AWorldSettings
 	UPROPERTY(EditAnywhere, Category = "LoadingWidget Settings")
 	TSubclassOf<UUserWidget> LoadingWidget;
 
+	UPROPERTY(EditAnywhere, Category = "LevelMovePoint")
+		TArray<AActor*> LevelMovePoints;
+
 public:
 	TSubclassOf<UUserWidget> GetLoadingWidget() const { return LoadingWidget; }
+
+	AActor* GetLevelMovePoints(int32 num = 0) const;
 
 };

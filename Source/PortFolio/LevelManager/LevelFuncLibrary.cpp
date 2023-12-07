@@ -9,7 +9,7 @@
 #include "PortFolio/SaveGame/SaveSystem.h"
 #include "PortFolio/Widget/Fade/FadeScreenSubsystem.h"
 
-void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime)
+void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime,const int32 MoveLevelPointNum)
 {
 	// ワールドを取得
 	UWorld * World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
@@ -40,22 +40,22 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 		UGameInstance* _GameInst = World->GetGameInstance();
 
 		auto FadeSubsystem = _GameInst->GetSubsystem<UFadeScreenSubsystem>();
-		auto LevelMnaager = _GameInst->GetSubsystem<ULevelSubsystemManager>();
+		auto LevelManager = _GameInst->GetSubsystem<ULevelSubsystemManager>();
 		FFadeScreenDelegate FadeDelegate;
 
 		// フェードアウトが終わったらレベルを移動する処理をバインドしておく
-		FadeDelegate.BindLambda([LevelMnaager, LevelName]()
+		FadeDelegate.BindLambda([LevelManager, LevelName]()
 			{
 				UE_LOG(LogTemp, Warning, TEXT("MoveLevel"));
-				LevelMnaager->LoadLevel(*LevelName.ToString());
+				LevelManager->LoadLevel(*LevelName.ToString());
 			});
 		// フェードアウトを行う
 		FadeSubsystem->AddFadeOutScreen(FadeTime, FLinearColor::Black, FadeDelegate);
 
 		//LoadMapの最後にデータを入れるようにする。
-		FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([LevelMnaager, FadeSubsystem,FadeTime](UWorld* World)
+		FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([LevelManager, FadeSubsystem,FadeTime,MoveLevelPointNum](UWorld* World)
 			{
-				LevelMnaager->AttachPlayerStatus(World, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
+				LevelManager->AttachPlayerStatus(World, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM,false,MoveLevelPointNum);
 				// フェードインを行う
 				FadeSubsystem->AddFadeInScreen(FadeTime);
 				UE_LOG(LogTemp, Warning, TEXT("Fade LoadClear"));

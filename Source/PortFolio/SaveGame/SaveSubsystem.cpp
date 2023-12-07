@@ -51,7 +51,7 @@ void USaveSubsystem::SaveGame(bool& clearSave,bool IsEnd)
 }
 
 //ロードする際に呼ぶ関数
-void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart)
+void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart, const int32 MoveLevelPointNum)
 {
 	clearLoad = false;
 	if(IsStart)
@@ -107,7 +107,7 @@ void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart)
 			//LoadMapの最後にデータを入れるようにする。
 			FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([FadeSubsystem, LevelManager](UWorld* World)
 				{
-					LevelManager->AttachPlayerStatus(World, SAVE_SLOT_NAME, SAVE_SLOT_NUM);
+					LevelManager->AttachPlayerStatus(World, SAVE_SLOT_NAME, SAVE_SLOT_NUM,true);
 
 					FadeSubsystem->AddFadeInScreen();
 					UE_LOG(LogTemp, Warning, TEXT("FadeOutClear"));
@@ -154,9 +154,9 @@ void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart)
 			FadeSubsystem -> AddFadeOutScreen(1.0f, FLinearColor::Black, FadeDelegate);
 
 			//LoadMapの最後にデータを入れるようにする。
-			FCoreUObjectDelegates::PostLoadMapWithWorld . AddLambda([this,FadeSubsystem,LevelManager](UWorld* World)
+			FCoreUObjectDelegates::PostLoadMapWithWorld . AddLambda([this,FadeSubsystem,LevelManager,MoveLevelPointNum](UWorld* World)
 			{
-				LevelManager->AttachPlayerStatus(World, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
+				LevelManager->AttachPlayerStatus(World, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM,false,MoveLevelPointNum);
 				// フェードインを行う
 				FadeSubsystem -> AddFadeInScreen();
 				UE_LOG(LogTemp, Warning, TEXT("Fade LoadClear"));

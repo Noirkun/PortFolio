@@ -32,6 +32,7 @@ void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 void ULevelSubsystemManager::LevelLoadCompleted()
 {
 	
+	//Widgetを解除する
 	if (LoadingScreenWidget->GetParent() != nullptr && LoadingScreenWidget->GetParent()->IsA<UGameViewportClient>())
 	{
 		LoadingScreenWidget->RemoveFromParent();
@@ -131,7 +132,7 @@ void ULevelSubsystemManager::AsyncOpenLevel(ELevelNamesType Level)
 }
 */
 
-void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum)
+void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum, const bool bIsStart, const int32 MovePointNum)
 {
 	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SlotName, SlotNum));
 	const FString& LevelName = SaveGameInstance->SaveParameter.level;
@@ -144,19 +145,45 @@ void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& Sl
 
 		if (Character)
 		{
-			APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
+			//スタート時に呼ぶかそれ以外で呼ぶ
+			if (bIsStart)
+			{
+				APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
 
-			// プレイヤーに値を割り振る
-			MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
-			MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
-			MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
-			MyCharacter->SetActorTransform(SaveGameInstance->SaveParameter.playerTransform);
+				// プレイヤーに値を割り振る
+				MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
+				MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
+				MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
+				MyCharacter->SetActorTransform(SaveGameInstance->SaveParameter.playerTransform);
 
-			UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus"));
+				UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
+			}
+			else
+			{
+				APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
 
+				//WorldSettingsを取得
+				AWorldSettings* WorldSettings = GetWorld()->GetWorldSettings();
+				AFarmWorldSettings* FarmWorldSettings = Cast<AFarmWorldSettings>(WorldSettings);
+
+				if (FarmWorldSettings->GetLevelMovePoints(MovePointNum))
+				{
+					// プレイヤーに値を割り振る
+					MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
+					MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
+					MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
+					MyCharacter->SetActorTransform(FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorTransform());
+
+					UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("LevelSubSystemManager: not MovePointNum; MovePointNum=%d"),MovePointNum);
+
+				}
+			}
 		}
 	}
-
 }
 
 void ULevelSubsystemManager::LoadLevel(const FName& level)
@@ -165,14 +192,16 @@ void ULevelSubsystemManager::LoadLevel(const FName& level)
 	UGameplayStatics::UnloadStreamLevel( this, GetWorld()->GetFName(), LoadLatentAction, false );
 	LoadLevelName=level;
 
+	//WorldSettingsを取得
 	AWorldSettings *WorldSettings = GetWorld()->GetWorldSettings();
 	AFarmWorldSettings *FarmWorldSettings = Cast<AFarmWorldSettings>(WorldSettings);
 	if (FarmWorldSettings)
 	{
+		//WorldSettingsにセットしたWidgetを取得して表示する。
 		UUserWidget *Widget = FarmWorldSettings->GetLoadingWidget().GetDefaultObject();
 		if (Widget)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Widget is %s"), *Widget->GetName())
+			UE_LOG(LogTemp, Warning, TEXT("Widget is = %s"), *Widget->GetName())
 			LoadingScreenWidget = CreateWidget<UUserWidget>(GetWorld(), Widget->GetClass());
 			if (LoadingScreenWidget)
 			{

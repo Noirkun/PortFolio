@@ -8,3 +8,25 @@ AFarmWorldSettings::AFarmWorldSettings(const FObjectInitializer& ObjectInitializ
 {
 }
 
+AActor* AFarmWorldSettings::GetLevelMovePoints(int32 num) const
+{
+	if (LevelMovePoints.IsEmpty())
+	{
+		//‹ó‚È‚çnullptr‚ğ•Ô‚·
+		return nullptr;
+	}
+	else if (LevelMovePoints[num])
+	{
+		//num‚Ì”z—ñ”Ô†‚ª‚ ‚é‚È‚ç‚»‚ê‚ğ•Ô‚·
+		return LevelMovePoints[num];
+	}
+	else
+	{
+		//‹ó‚Å‚Í‚È‚¢‚¯‚Çnum‚ª‚È‚¢‚È‚ç0”Ô–Ú‚Ì”z—ñ‚ğ•Ô‚·
+		UE_LOG(LogTemp, Warning, TEXT("GetLevelMovePoint: return LevelMovePoints[0];"));
+		return LevelMovePoints[0];
+
+	}
+	
+}
+

@@ -46,9 +46,10 @@ public:
 	/* ゲームをロードする用の関数(Slotになにもないと動作されない)
 	 @param clearLoad ロードができたかどうか
 	 @param IsStart ゲームを開始するときに呼ぶかどうか
+	 @param MoveLevelPointNum GetAttatchに渡す引数
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Save/Load")
-	void LoadGame(bool& clearLoad,bool IsStart=false);
+	void LoadGame(bool& clearLoad,bool IsStart=false,const int32 MoveLevelPointNum=0);
 	
 	 /* セーブしたスロットを削除する用の関数
 	  @param ReturnResetSlot スロットを削除できたかどうか

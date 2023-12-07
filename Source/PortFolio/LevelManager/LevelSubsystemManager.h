@@ -39,11 +39,13 @@ public:
 
 	
 	/* プレイヤーのパラメータをアタッチする用の関数
-	@param World 
-	@param SlotName
-	@param SlotNum
+	@param World ワールド
+	@param SlotName セーブするスロットネーム
+	@param SlotNum セーブするスロット番号
+	@param bIsStart スタート時に呼ぶかどうか
+	@param MovePointNum WorldSettingsでセットしたMovePointの番号を入れる。
 	*/
-	void AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum);
+	void AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum, const bool bIsStart, const int32 MovePointNum=0);
 	
 
 	/* レベルをロードする関数
@@ -56,6 +58,7 @@ public:
 
 	UPROPERTY()
 	UUserWidget* LoadingScreenWidget=nullptr;
+
 private:
 	bool Complete;
 	FName LoadLevelName;
