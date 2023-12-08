@@ -4,6 +4,7 @@
 #include "LevelSubsystemManager.h"
 #include "Async/Async.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraComponent.h"
 #include "Components/PanelWidget.h"
 #include "Containers/Ticker.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,7 +17,6 @@ void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 	
 	Super::Initialize(Collection);
 	
-
 	LoadLatentAction.CallbackTarget = this;
 	LoadLatentAction.ExecutionFunction = "LevelLoadCompleted";
 	LoadLatentAction.UUID = 1;
@@ -49,8 +49,6 @@ void ULevelSubsystemManager::LevelLoadCompleted()
 	
 	//完了したらLevelを移動する。
 	UGameplayStatics::OpenLevel( this, LoadLevelName );
-
-
 
 }
 
@@ -180,7 +178,17 @@ void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& Sl
 					MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
 					MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
 					MyCharacter->SetActorTransform(FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorTransform());
-
+					// プレイヤーコントローラーを取得
+					APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+					if (PlayerController)
+					{
+						UE_LOG( LogTemp, Warning, TEXT("AttachPlayerStatus: SetControlRotation=%s"), *FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorRotation().ToString() );
+						
+						// プレイヤーコントローラーの回転を指定
+						PlayerController -> SetControlRotation( FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorRotation());
+					}
+					
+						
 					UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
 				}
 				else

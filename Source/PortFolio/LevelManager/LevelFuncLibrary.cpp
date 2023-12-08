@@ -11,6 +11,7 @@
 
 void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime,const int32 MoveLevelPointNum)
 {
+	
 	if(bLoading)
 	{
 		return;
@@ -24,12 +25,18 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 	//プレイヤーを取得
 	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
 	APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
-
+	
 	// USaveSystemクラスを取得
 	USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
 	//セーブする値のセット
-	SaveGameInstance->SaveParameter = { World->GetOuter()->GetPathName(),MyCharacter->playerStatus,MyCharacter->EXP,
-	   MyCharacter->dataNum,MyCharacter->GetTransform() };
+	SaveGameInstance->SaveParameter =
+		{
+		World->GetOuter()->GetPathName(),
+		MyCharacter->playerStatus,
+		MyCharacter->EXP,
+		MyCharacter->dataNum,
+		MyCharacter->GetTransform()
+		};
 
 	UE_LOG(LogTemp, Log, TEXT("NowSaveGame"));
 	// 現在のプレイヤーのデータをセーブする
@@ -65,7 +72,7 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 				// フェードインを行う
 				FadeSubsystem->AddFadeInScreen(FadeTime);
 				bLoading = false;
-				UE_LOG(LogTemp, Warning, TEXT("Fade LoadClear"));
+				UE_LOG(LogTemp, Warning, TEXT("LevelFunc: Fade LoadClear"));
 			});
 	}
 }

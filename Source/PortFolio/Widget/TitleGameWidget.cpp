@@ -4,6 +4,7 @@
 #include "TitleGameWidget.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "PortFolio/LevelManager/LevelSubsystemManager.h"
 #include "PortFolio/SaveGame/SaveSubsystem.h"
 
 void UTitleGameWidget::NativeConstruct()

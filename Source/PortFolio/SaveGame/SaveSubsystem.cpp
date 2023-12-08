@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PortFolio/PortFolioCharacter.h"
 #include "PortFolio/Widget/Fade/FadeScreenSubsystem.h"
+#include "../LevelManager/LevelSubsystemManager.h"
+#include "SaveSystem.h"
 #include "UObject/UObjectGlobals.h"
 
 USaveSubsystem* USaveSubsystem::Get()

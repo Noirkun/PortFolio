@@ -7,6 +7,7 @@
 #include "PortFolio/GameManager/GameManager.h"
 #include "LevelSubsystemManager.generated.h"
 
+//定数
 #define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
 #define SAVE_SLOT_NOW_GAME_NUM 1
 
@@ -36,7 +37,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LevelManager")
 		void AsyncOpenLevel(ELevelNamesType Level);
 	*/
-
 	
 	/* プレイヤーのパラメータをアタッチする用の関数
 	@param World ワールド

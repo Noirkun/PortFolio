@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SaveSystem.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "../LevelManager/LevelSubsystemManager.h"
 #include "Tasks/Task.h"
 #include "SaveSubsystem.generated.h"
 
@@ -15,21 +13,16 @@ using namespace UE::Tasks;
 #define SAVE_SLOT_NAME "SaveSlotName"
 #define SAVE_SLOT_NUM 0
 
-
-
-
-
 /**
  * 　セーブとロードを管理するクラス
  */
 UCLASS()
-class PORTFOLIO_API USaveSubsystem : public UGameInstanceSubsystem
+class PORTFOLIO_API USaveSubsystem : public UGameInstanceSubsystem 
 {
 	GENERATED_BODY()
 	
 public:
-
-
+	
 	//inline static ULevelSubsystemManager LevelManager;
 	
 	inline static USaveSubsystem* instance;
@@ -57,5 +50,8 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Save/Load")
 	void ResetSaveSlot(bool& ReturnResetSlot);
 
+
+	UPROPERTY( EditAnywhere, Category = "LoadingWidget Settings")
+	TSubclassOf<UUserWidget> LoadingWidget;
 	
 };

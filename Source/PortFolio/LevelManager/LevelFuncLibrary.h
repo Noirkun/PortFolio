@@ -21,7 +21,6 @@ class PORTFOLIO_API ULevelFuncLibrary : public UBlueprintFunctionLibrary
 	*/
 	UFUNCTION(BlueprintCallable, Category = "LevelFuncLibrary", meta=(WorldContext="WorldContextObject"))
 	static void AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime=1.0f,const int32 MoveLevelPointNum=0);
-
 	
 	inline static bool bLoading = false;
 	
