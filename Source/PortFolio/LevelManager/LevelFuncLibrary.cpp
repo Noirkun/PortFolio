@@ -11,11 +11,16 @@
 
 void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime,const int32 MoveLevelPointNum)
 {
+	if(bLoading)
+	{
+		return;
+	}
+	bLoading = true;
 	// ワールドを取得
 	UWorld * World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
 	UE_LOG( LogTemp, Warning, TEXT("LevelName=%s"), *LevelName.ToString() );
-
+	
 	//プレイヤーを取得
 	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
 	APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
@@ -37,10 +42,11 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 		{
 			// スロットに保存されているレベル以外をロードするときの処理があれば書く
 		}
+		
 		UGameInstance* _GameInst = World->GetGameInstance();
-
-		auto FadeSubsystem = _GameInst->GetSubsystem<UFadeScreenSubsystem>();
 		auto LevelManager = _GameInst->GetSubsystem<ULevelSubsystemManager>();
+		auto FadeSubsystem = _GameInst->GetSubsystem<UFadeScreenSubsystem>();
+
 		FFadeScreenDelegate FadeDelegate;
 
 		// フェードアウトが終わったらレベルを移動する処理をバインドしておく
@@ -58,6 +64,7 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 				LevelManager->AttachPlayerStatus(World, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM,false,MoveLevelPointNum);
 				// フェードインを行う
 				FadeSubsystem->AddFadeInScreen(FadeTime);
+				bLoading = false;
 				UE_LOG(LogTemp, Warning, TEXT("Fade LoadClear"));
 			});
 	}

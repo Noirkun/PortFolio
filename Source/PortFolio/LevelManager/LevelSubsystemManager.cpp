@@ -41,11 +41,17 @@ void ULevelSubsystemManager::LevelLoadCompleted()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("LoadingScreenWidget is not in viewport"));
 	}
+
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([this](UWorld* World)
+			{
+				Complete = true;
+			});
+	
 	//完了したらLevelを移動する。
 	UGameplayStatics::OpenLevel( this, LoadLevelName );
 
-	Complete = true;
-	
+
+
 }
 
 void ULevelSubsystemManager::UnLevelLoadCompleted()
@@ -134,6 +140,7 @@ void ULevelSubsystemManager::AsyncOpenLevel(ELevelNamesType Level)
 
 void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum, const bool bIsStart, const int32 MovePointNum)
 {
+	// USaveSystemクラスを取得
 	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SlotName, SlotNum));
 	const FString& LevelName = SaveGameInstance->SaveParameter.level;
 

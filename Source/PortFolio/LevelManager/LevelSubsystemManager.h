@@ -60,7 +60,7 @@ public:
 	UUserWidget* LoadingScreenWidget=nullptr;
 
 private:
-	bool Complete;
+	bool Complete=false;
 	FName LoadLevelName;
 	FLatentActionInfo LoadLatentAction;
 	FLatentActionInfo UnloadLatentAction;
