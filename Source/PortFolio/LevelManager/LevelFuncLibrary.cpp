@@ -22,14 +22,18 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
 	UE_LOG( LogTemp, Warning, TEXT("LevelName=%s"), *LevelName.ToString() );
 	
-	//プレイヤーを取得
-	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
-	APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
-	
 	// USaveSystemクラスを取得
 	USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
-	//セーブする値のセット
-	SaveGameInstance->SaveParameter =
+
+	if (UGameplayStatics::GetPlayerCharacter(World, 0))
+	{
+		//プレイヤーを取得
+		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
+		APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
+
+
+//セーブする値のセット
+		SaveGameInstance->SaveParameter =
 		{
 		World->GetOuter()->GetPathName(),
 		MyCharacter->playerStatus,
@@ -38,10 +42,11 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 		MyCharacter->GetTransform()
 		};
 
-	UE_LOG(LogTemp, Log, TEXT("NowSaveGame"));
-	// 現在のプレイヤーのデータをセーブする
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
-	
+		UE_LOG(LogTemp, Log, TEXT("NowSaveGame"));
+		// 現在のプレイヤーのデータをセーブする
+		UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
+	}
+
 	if (SaveGameInstance)
 	{
 		// LevelNameが現在のレベルと同じでない場合のみロードする
