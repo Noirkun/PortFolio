@@ -32,7 +32,7 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 		APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
 
 
-//セーブする値のセット
+		//セーブする値のセット
 		SaveGameInstance->SaveParameter =
 		{
 		World->GetOuter()->GetPathName(),

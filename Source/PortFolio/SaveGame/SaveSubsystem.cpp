@@ -132,6 +132,8 @@ void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart, const int32 MoveLev
 		// 一時セーブ用スロットを取得
 		 USaveSystem* SaveGameInstance = Cast<USaveSystem>(
 			UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM));
+
+		UE_LOG( LogTemp, Warning, TEXT("LevelName=%s"), *SaveGameInstance -> SaveParameter.playerTransform.ToString());
 		
 		if(SaveGameInstance)
 		{
