@@ -11,7 +11,7 @@
 
 void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime,const int32 MoveLevelPointNum)
 {
-	
+	// ロードしている場合は何もしない
 	if(bLoading)
 	{
 		return;
@@ -20,11 +20,13 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 	// ワールドを取得
 	UWorld * World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
+	//	Level名を確認
 	UE_LOG( LogTemp, Warning, TEXT("LevelName=%s"), *LevelName.ToString() );
 	
 	// USaveSystemクラスを取得
 	USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
 
+	//Level上にプレイヤーがいる場合のみセーブする
 	if (UGameplayStatics::GetPlayerCharacter(World, 0))
 	{
 		//プレイヤーを取得
@@ -47,6 +49,7 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 		UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
 	}
 
+	// SaveGameInstanceが有効ならロードする
 	if (SaveGameInstance)
 	{
 		// LevelNameが現在のレベルと同じでない場合のみロードする
