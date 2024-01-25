@@ -288,6 +288,12 @@ void APortFolioCharacter::GetLevelStatus()
 	playerStatus.playerMaxEXP = _Record->EXP;
 
 }
+
+void APortFolioCharacter::CallTouchEvent()
+{
+	OnTouchEvent.Broadcast();
+}
+
 //#pragma endregion
 
 //#pragma region 攻撃力・体力関係

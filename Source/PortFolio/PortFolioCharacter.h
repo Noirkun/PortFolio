@@ -8,6 +8,7 @@
 #include "PortFolio/Struct/PlayerStatusStruct.h"
 #include "PortFolioCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTouchDelegate);
 
 UCLASS(config=Game)
 class APortFolioCharacter : public ACharacter
@@ -49,8 +50,7 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-
-protected:
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -77,10 +77,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, DisplayName = "LevelDown", Category = "PlayerStatus")
 		void LevelDown();
-
-
+	
 	void GetLevelStatus();
 
+	// タッチイベントで呼び出すデリゲート
+	UFUNCTION( BlueprintCallable, Category = "TouchDelegate")
+		void CallTouchEvent();
+	
+	
 private:
 
 #if WITH_EDITORONLY_DATA
@@ -104,6 +108,8 @@ public:
 
 	int32 dataNum = 0;
 
+	UPROPERTY(BlueprintAssignable, Category = "TouchDelegate")
+	FTouchDelegate OnTouchEvent;
 
 };
 

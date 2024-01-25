@@ -7,6 +7,7 @@
 #include "PortFolio/PortFolioCharacter.h"
 #include "PortFolio/LevelManager/LevelSubsystemManager.h"
 #include "PortFolio/SaveGame/SaveSystem.h"
+#include "PortFolio/SaveGame/SaveSubsystem.h"
 #include "PortFolio/Widget/Fade/FadeScreenSubsystem.h"
 
 void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const TSoftObjectPtr<UWorld> Level,double FadeTime,const int32 MoveLevelPointNum)
@@ -26,14 +27,16 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 	// USaveSystemクラスを取得
 	USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::CreateSaveGameObject(USaveSystem::StaticClass()));
 
+	// SaveSubsystemを取得
+	USaveSubsystem* SaveSubsystem = World->GetGameInstance()->GetSubsystem<USaveSubsystem>();
+	
 	//Level上にプレイヤーがいる場合のみセーブする
 	if (UGameplayStatics::GetPlayerCharacter(World, 0))
 	{
 		//プレイヤーを取得
 		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
 		APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
-
-
+		
 		//セーブする値のセット
 		SaveGameInstance->SaveParameter =
 		{
@@ -47,7 +50,9 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 		UE_LOG(LogTemp, Log, TEXT("NowSaveGame"));
 		// 現在のプレイヤーのデータをセーブする
 		UGameplayStatics::SaveGameToSlot(SaveGameInstance, SAVE_SLOT_NOW_GAME_NAME, SAVE_SLOT_NOW_GAME_NUM);
+		
 	}
+
 
 	// SaveGameInstanceが有効ならロードする
 	if (SaveGameInstance)
@@ -83,4 +88,5 @@ void ULevelFuncLibrary::AsyncOpenLevel(const UObject* WorldContextObject,const T
 				UE_LOG(LogTemp, Warning, TEXT("LevelFunc: Fade LoadClear"));
 			});
 	}
+
 }

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Tasks/Task.h"
+#include "PortFolio/Widget/Fade/FadeScreenSubsystem.h"
+#include "../LevelManager/LevelSubsystemManager.h"
 #include "SaveSubsystem.generated.h"
 
 using namespace UE::Tasks;
@@ -14,7 +16,7 @@ using namespace UE::Tasks;
 #define SAVE_SLOT_NUM 0
 
 /**
- * 　セーブとロードを管理するクラス
+ * 　セーブとロードを管理するサブシステムクラス
  */
 UCLASS()
 class PORTFOLIO_API USaveSubsystem : public UGameInstanceSubsystem 
@@ -53,5 +55,19 @@ public:
 
 	UPROPERTY( EditAnywhere, Category = "LoadingWidget Settings")
 	TSubclassOf<UUserWidget> LoadingWidget;
+
+
+	// セーブスロットをロードする関数
+	void LoadSaveSlot(FString SlotName, int32 SlotNum);
+
+	// セーブスロットを作成する関数
+	bool CreateSaveSlot(FString SlotName, int32 SlotNum);
 	
+private:
+	// セーブスロットがあるかどうかを返す関数
+	bool CheckSaveSlot(bool IsStart=false);
+
+
+	
+
 };
