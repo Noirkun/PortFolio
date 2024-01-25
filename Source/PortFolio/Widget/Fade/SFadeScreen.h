@@ -7,7 +7,7 @@
 #include "PortFolio/Widget/Fade/Struct/FadeScreenStruct.h"
 
 /**
- * 
+ * 　Fadeを行うためのSImage
  */
 class PORTFOLIO_API SFadeScreen : public SImage
 {

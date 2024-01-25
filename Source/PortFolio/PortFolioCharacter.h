@@ -10,6 +10,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTouchDelegate);
 
+// プレイヤーのキャラクタークラス
 UCLASS(config=Game)
 class APortFolioCharacter : public ACharacter
 {

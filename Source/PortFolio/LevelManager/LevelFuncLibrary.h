@@ -7,7 +7,7 @@
 #include "LevelFuncLibrary.generated.h"
 
 /**
- * 
+ * 　レベル移動用の関数ライブラリ
  */
 UCLASS()
 class PORTFOLIO_API ULevelFuncLibrary : public UBlueprintFunctionLibrary

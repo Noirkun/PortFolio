@@ -9,7 +9,7 @@
 #include "StructFunctionLibrary.generated.h"
 
 /**
- * 
+ * 　LevelUp用のBP関数ライブラリ
  */
 UCLASS()
 class PORTFOLIO_API UStructFunctionLibrary : public UBlueprintFunctionLibrary

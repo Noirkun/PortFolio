@@ -7,7 +7,7 @@
 #include "FarmWorldSettings.generated.h"
 
 /**
- * 
+ * 　Loading用にWorldSettingsの拡張
  */
 UCLASS()
 class PORTFOLIO_API AFarmWorldSettings : public AWorldSettings

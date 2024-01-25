@@ -6,7 +6,7 @@
 #include "../Struct/PlayerStatusStruct.h"
 #include "SaveParmeterStruct.generated.h"
 /**
- * 
+ * 　セーブ用の構造体
  */
 //セーブ・ロードする変数の構造体
 USTRUCT(BlueprintType)

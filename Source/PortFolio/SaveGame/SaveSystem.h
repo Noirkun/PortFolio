@@ -8,7 +8,7 @@
 #include "SaveSystem.generated.h"
 
 /**
- * 
+ * 　セーブ用の構造体を持つセーブゲーム
  */
 UCLASS()
 class PORTFOLIO_API USaveSystem : public USaveGame

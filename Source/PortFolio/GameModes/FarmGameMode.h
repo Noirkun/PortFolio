@@ -7,7 +7,7 @@
 #include "FarmGameMode.generated.h"
 
 /**
- * 
+ *  ゲームモード
  */
 UCLASS()
 class PORTFOLIO_API AFarmGameMode : public AGameModeBase
