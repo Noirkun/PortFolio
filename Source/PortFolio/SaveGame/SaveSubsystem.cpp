@@ -4,7 +4,6 @@
 #include "SaveSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "PortFolio/PortFolioCharacter.h"
-
 #include "SaveSystem.h"
 #include "UObject/UObjectGlobals.h"
 
@@ -61,7 +60,7 @@ void USaveSubsystem::LoadGame(bool& clearLoad, bool IsStart, const int32 MoveLev
 	}
 }
 
-void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
+void USaveSubsystem::ResetSaveSlot()
 {
 	//ゲームスロットが作られているか確認
 	if(UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
@@ -69,12 +68,10 @@ void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
 		//作られていた場合削除する。
 		UGameplayStatics::DeleteGameInSlot(SAVE_SLOT_NAME,SAVE_SLOT_NUM);
 		UE_LOG(LogTemp, Log, TEXT("ResetSaveSlot"));
-		ReturnResetSlot=true;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Not SaveSlot"));
-		ReturnResetSlot=false;
 	}
 }
 

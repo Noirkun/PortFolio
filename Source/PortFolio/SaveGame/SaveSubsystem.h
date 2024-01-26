@@ -50,24 +50,19 @@ public:
 	  @param ReturnResetSlot スロットを削除できたかどうか
 	 */
 	UFUNCTION(BlueprintCallable,Category="Save/Load")
-	void ResetSaveSlot(bool& ReturnResetSlot);
+	void ResetSaveSlot();
 
 	// スタートセーブスロットがあるかを返す関数
 	UFUNCTION(BlueprintCallable,BlueprintPure,Category="Save/Load")
 	bool DoesStartSaveSlot();
-	
 
-	UPROPERTY( EditAnywhere, Category = "LoadingWidget Settings")
-	TSubclassOf<UUserWidget> LoadingWidget;
-
-
+private:
 	// セーブスロットをロードする関数
 	void LoadSaveSlot(FString SlotName, int32 SlotNum);
 
 	// セーブスロットを作成する関数
 	bool CreateSaveSlot(FString SlotName, int32 SlotNum);
-	
-private:
+
 	// セーブスロットがあるかどうかを返す関数
 	bool CheckSaveSlot(bool IsStart=false);
 
