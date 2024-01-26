@@ -32,16 +32,10 @@ void ULevelSubsystemManager::Initialize(FSubsystemCollectionBase& Collection)
 void ULevelSubsystemManager::LevelLoadCompleted()
 {
 	
-	//Widgetを解除する
-	if (LoadingScreenWidget->GetParent() != nullptr && LoadingScreenWidget->GetParent()->IsA<UGameViewportClient>())
-	{
-		LoadingScreenWidget->RemoveFromParent();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("LoadingScreenWidget is not in viewport"));
-	}
+	// Widgetを削除する
+	RemoveLoadingWidget();
 
+	// Level移動後に呼ばれるデリゲートに移動したかの判定を入れる
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([this](UWorld* World)
 			{
 				Complete = true;
@@ -136,73 +130,53 @@ void ULevelSubsystemManager::AsyncOpenLevel(ELevelNamesType Level)
 }
 */
 
-void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum, const bool bIsStart, const int32 MovePointNum)
+void ULevelSubsystemManager::AttachPlayerStatus(UWorld* World, const FString& SlotName, const int32 SlotNum,
+                                                const bool bIsStart, const int32 MovePointNum)
 {
 	// USaveSystemクラスを取得
 	const USaveSystem* SaveGameInstance = Cast<USaveSystem>(UGameplayStatics::LoadGameFromSlot(SlotName, SlotNum));
-	const FString& LevelName = SaveGameInstance->SaveParameter.level;
+	const FString& LevelName = SaveGameInstance -> SaveParameter . level;
 
 	// PostLoadMapWithWorldのデリゲートを削除
-	FCoreUObjectDelegates::PostLoadMapWithWorld.Clear();
-	if (World)
+	FCoreUObjectDelegates::PostLoadMapWithWorld . Clear();
+
+	if (!World)
 	{
-		ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
+		return;
+	}
 
-		if (Character)
+	//スタート時に呼ぶかそれ以外で呼ぶ
+	if (bIsStart)
+	{
+		// プレイヤーに値を割り振る
+		AttachPlayerData(World, SaveGameInstance, bIsStart);
+		UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
+	}
+	else
+	{
+		//WorldSettingsを取得
+		AWorldSettings* WorldSettings = GetWorld() -> GetWorldSettings();
+		AFarmWorldSettings* FarmWorldSettings = Cast<AFarmWorldSettings>(WorldSettings);
+
+		if (!FarmWorldSettings -> GetLevelMovePoints(MovePointNum))
 		{
-			//スタート時に呼ぶかそれ以外で呼ぶ
-			if (bIsStart)
-			{
-				APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
-
-				// プレイヤーに値を割り振る
-				MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
-				MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
-				MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
-				MyCharacter->SetActorTransform(SaveGameInstance->SaveParameter.playerTransform);
-
-				UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
-			}
-			else
-			{
-				APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
-
-				//WorldSettingsを取得
-				AWorldSettings* WorldSettings = GetWorld()->GetWorldSettings();
-				AFarmWorldSettings* FarmWorldSettings = Cast<AFarmWorldSettings>(WorldSettings);
-
-				if (FarmWorldSettings->GetLevelMovePoints(MovePointNum))
-				{
-					// プレイヤーに値を割り振る
-					MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
-					MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
-					MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
-					MyCharacter->SetActorTransform(FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorTransform());
-					// プレイヤーコントローラーを取得
-					APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
-					if (PlayerController)
-					{
-						UE_LOG( LogTemp, Warning, TEXT("AttachPlayerStatus: SetControlRotation=%s"), *FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorRotation().ToString() );
-						
-						// プレイヤーコントローラーの回転を指定
-						PlayerController -> SetControlRotation( FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorRotation());
-					}
-					
-						
-					UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("LevelSubSystemManager: not MovePointNum; MovePointNum=%d"),MovePointNum);
-
-				}
-			}
+			UE_LOG(LogTemp, Warning, TEXT("LevelSubSystemManager: not MovePointNum; MovePointNum=%d"),
+			       MovePointNum);
+			return;
 		}
+		// プレイヤーに値を割り振る
+		AttachPlayerData(World, SaveGameInstance, bIsStart, FarmWorldSettings, MovePointNum);
+
+		// プレイヤーの向きを変える
+		SetPlayerRotation(World, FarmWorldSettings, MovePointNum);
+
+		UE_LOG(LogTemp, Warning, TEXT("AttachPlayerStatus StartCall"));
 	}
 }
 
 void ULevelSubsystemManager::LoadLevel(const FName& level)
 {
+	//現在のレベルをアンロードする
 	Complete = false;
 	UGameplayStatics::UnloadStreamLevel( this, GetWorld()->GetFName(), LoadLatentAction, false );
 	LoadLevelName=level;
@@ -212,17 +186,8 @@ void ULevelSubsystemManager::LoadLevel(const FName& level)
 	AFarmWorldSettings *FarmWorldSettings = Cast<AFarmWorldSettings>(WorldSettings);
 	if (FarmWorldSettings)
 	{
-		//WorldSettingsにセットしたWidgetを取得して表示する。
-		UUserWidget *Widget = FarmWorldSettings->GetLoadingWidget().GetDefaultObject();
-		if (Widget)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Widget is = %s"), *Widget->GetName())
-			LoadingScreenWidget = CreateWidget<UUserWidget>(GetWorld(), Widget->GetClass());
-			if (LoadingScreenWidget)
-			{
-				LoadingScreenWidget->AddToViewport();
-			}
-		}
+		//Widgetを表示する
+		CreateLoadingWidget(FarmWorldSettings);
 	}
 	
 }
@@ -230,5 +195,87 @@ void ULevelSubsystemManager::LoadLevel(const FName& level)
 bool ULevelSubsystemManager::IsCompleted() const
 {
 	return Complete;
+}
+
+void ULevelSubsystemManager::RemoveLoadingWidget()
+{
+	//Widgetを解除する
+	if (LoadingScreenWidget->GetParent() != nullptr && LoadingScreenWidget->GetParent()->IsA<UGameViewportClient>())
+	{
+		LoadingScreenWidget->RemoveFromParent();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LoadingScreenWidget is not in viewport"));
+	}
+}
+
+void ULevelSubsystemManager::CreateLoadingWidget(const AFarmWorldSettings* FarmWorldSettings)
+{
+	//WorldSettingsにセットしたWidgetを取得して表示する。
+	UUserWidget *Widget = FarmWorldSettings->GetLoadingWidget().GetDefaultObject();
+	if (Widget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Widget is = %s"), *Widget->GetName())
+		LoadingScreenWidget = CreateWidget<UUserWidget>(GetWorld(), Widget->GetClass());
+		if (LoadingScreenWidget)
+		{
+			LoadingScreenWidget->AddToViewport();
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LevelSubsystemManager:LoadingScreenWidget is nullptr"));
+	}
+}
+
+void ULevelSubsystemManager::AttachPlayerData(const UWorld* World, const USaveSystem* SaveGameInstance,bool bIsStart, const AFarmWorldSettings* FarmWorldSettings,int32 MovePointNum)
+{
+	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(World, 0);
+	//キャラクターがいない場合は何もしない
+	if(!Character)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LevelSubsystemManager:Character is nullptr"));
+		return;
+	}
+
+	//プレイヤーを取得
+	APortFolioCharacter* MyCharacter = Cast<APortFolioCharacter, ACharacter>(Character);
+	
+	//プレイヤーのデータをアタッチする
+	MyCharacter->playerStatus = SaveGameInstance->SaveParameter.playerStatus;
+	MyCharacter->EXP = SaveGameInstance->SaveParameter.playerEXP;
+	MyCharacter->dataNum = SaveGameInstance->SaveParameter.levelData;
+	if(bIsStart)
+	{
+		// プレイヤーの位置を移動する
+		MyCharacter->SetActorTransform(SaveGameInstance->SaveParameter.playerTransform);
+	}
+	else
+	{
+		MyCharacter->SetActorTransform(FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorTransform());
+	}
+
+}
+
+void ULevelSubsystemManager::SetPlayerRotation(const UWorld* World,
+	const AFarmWorldSettings* FarmWorldSettings, int32 MovePointNum)
+{
+	// プレイヤーコントローラーを取得
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+	if (PlayerController)
+	{
+		// MovePointの回転をLogに出力
+		UE_LOG(LogTemp, Warning, TEXT("SetPlayerRotation:AttachPlayerStatus: SetControlRotation=%s"),
+			   *FarmWorldSettings->GetLevelMovePoints(MovePointNum)->GetActorRotation().ToString());
+
+		// プレイヤーコントローラーの回転を指定
+		PlayerController -> SetControlRotation(
+			FarmWorldSettings -> GetLevelMovePoints(MovePointNum) -> GetActorRotation());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetPlayerRotation:AttachPlayerStatus: PlayerController is nullptr"));
+	}
 }
 

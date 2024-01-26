@@ -52,6 +52,10 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Save/Load")
 	void ResetSaveSlot(bool& ReturnResetSlot);
 
+	// スタートセーブスロットがあるかを返す関数
+	UFUNCTION(BlueprintCallable,BlueprintPure,Category="Save/Load")
+	bool DoesStartSaveSlot();
+	
 
 	UPROPERTY( EditAnywhere, Category = "LoadingWidget Settings")
 	TSubclassOf<UUserWidget> LoadingWidget;

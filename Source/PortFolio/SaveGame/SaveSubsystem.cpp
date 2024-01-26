@@ -78,6 +78,19 @@ void USaveSubsystem::ResetSaveSlot(bool& ReturnResetSlot)
 	}
 }
 
+bool USaveSubsystem::DoesStartSaveSlot()
+{
+	//ゲームスロットが作られているか確認
+	if(UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,SAVE_SLOT_NUM))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool USaveSubsystem::CheckSaveSlot(bool IsStart)
 {
 	if(IsStart)

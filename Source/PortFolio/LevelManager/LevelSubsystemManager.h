@@ -11,6 +11,8 @@
 #define SAVE_SLOT_NOW_GAME_NAME "SaveNowSlotName"
 #define SAVE_SLOT_NOW_GAME_NUM 1
 
+class USaveSystem;
+class AFarmWorldSettings;
 /**
  *  レベルのロードな管理するクラス
  */
@@ -60,6 +62,19 @@ public:
 	UUserWidget* LoadingScreenWidget=nullptr;
 
 private:
+
+	// WidgetをRemoveする関数
+	void RemoveLoadingWidget();
+
+	// WorldSettingからWidgetを取得して表示する関数
+	void CreateLoadingWidget(const AFarmWorldSettings *FarmWorldSettings);
+
+	// プレイヤーのデータをアタッチする関数
+	void AttachPlayerData(const UWorld* World, const USaveSystem* SaveGameInstance,bool bIsStart, const AFarmWorldSettings* FarmWorldSettings=nullptr,int32 MovePointNum=0);
+
+	// プレイヤーコントローラーの回転をセットする関数
+	void SetPlayerRotation(const UWorld* World,const AFarmWorldSettings* FarmWorldSettings,int32 MovePointNum);
+	
 	bool Complete=false;
 	FName LoadLevelName;
 	FLatentActionInfo LoadLatentAction;
