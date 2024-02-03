@@ -96,9 +96,11 @@ void ASavePointBase::EnableKeyInput()
 	
 	// EキーのPressedをバインドする
 	//InputComponent->BindKey(EKeys::E, EInputEvent::IE_Pressed, this, &ASavePointBase::PressKeyEvent);
-
+	
 	// ActionEKeyのPressedにバインドする
 	InputComponent->BindAction("ActionEKey", EInputEvent::IE_Pressed, this, &ASavePointBase::PressKeyEvent);
+	
+	
 }
 
 // キー入力を無効にする
