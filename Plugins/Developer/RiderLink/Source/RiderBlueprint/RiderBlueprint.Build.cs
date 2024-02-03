@@ -26,10 +26,18 @@ public class RiderBlueprint : ModuleRules
 			"Slate",
 			"AssetRegistry",
 			"MessagingCommon",
-			"UnrealEd",
+			//"UnrealEd",
 			"UnrealEdMessages",
 			"Engine",
 			"CoreUObject"
 		});
+		
+		if (Target.bBuildEditor)
+		{
+			PublicDependencyModuleNames.AddRange(new []
+			{
+				"UnrealEd",
+			});
+		}
 	}
 }

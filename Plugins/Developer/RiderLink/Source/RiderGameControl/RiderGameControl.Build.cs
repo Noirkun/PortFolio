@@ -24,10 +24,19 @@ public class RiderGameControl : ModuleRules
 			"RiderLink",
 			"HeadMountedDisplay",
 			"LevelEditor",
-			"UnrealEd",
+			//"UnrealEd",
 			"Slate",
 			"CoreUObject",
 			"Engine"
 		});
+		
+		if (Target.bBuildEditor)
+		{
+			PublicDependencyModuleNames.AddRange(new []
+			{
+				"UnrealEd",
+			});
+		}
+		
 	}
 }
